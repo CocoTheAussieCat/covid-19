@@ -1,0 +1,49 @@
+﻿country,province,date,tested,positive
+Australia,New South Wales,7/3/20,7214,
+Australia,New South Wales,8/3/20,8008,
+Australia,New South Wales,9/3/20,8371,
+Australia,New South Wales,10/3/20,10165,
+Australia,New South Wales,11/3/20,10221,
+Australia,South Australia,11/3/20,600,
+Australia,New South Wales,12/3/20,14856,
+Australia,South Australia,12/3/20,800,
+Australia,New South Wales,13/3/20,16685,
+Australia,South Australia,13/3/20,1000,
+Australia,Western Australia,13/3/20,3802,
+Australia,New South Wales,14/3/20,20496,
+Australia,Tasmania,14/3/20,283,
+Australia,New South Wales,15/3/20,22567,
+Australia,Tasmania,15/3/20,359,
+Australia,New South Wales,16/3/20,26964,
+Australia,South Australia,16/3/20,2510,
+Australia,Victoria,16/3/20,11700,
+Australia,Western Australia,16/3/20,5906,
+Australia,New South Wales,17/3/20,30244,
+Australia,Victoria,17/3/20,14200,
+Australia,Western Australia,17/3/20,6613,
+Australia,Australian Capital Territory,18/3/20,1392,
+Australia,New South Wales,18/3/20,35800,
+Australia,South Australia,18/3/20,3000,
+Australia,Tasmania,18/3/20,707,
+Australia,Victoria,18/3/20,15200,
+Australia,Western Australia,18/3/20,7074,
+Australia,Australian Capital Territory,19/3/20,1856,
+Australia,New South Wales,19/3/20,39089,
+Australia,Queensland,19/3/20,27064,
+Australia,Victoria,19/3/20,17180,
+Australia,Western Australia,19/3/20,8008,
+Australia,Australian Capital Territory,20/3/20,2060,
+Australia,New South Wales,20/3/20,40651,353
+Australia,Queensland,20/3/20,28386,
+Australia,South Australia,20/3/20,13000,50
+Australia,Tasmania,20/3/20,807,10
+Australia,Victoria,20/3/20,19337,178
+Australia,Western Australia,20/3/20,8603,64
+Australia,Australian Capital Territory,21/3/20,2212,9
+Australia,Northern Territory,21/3/20,NA,5
+Australia,Queensland,21/3/20,29867,221
+Australia,New South Wales,21/3/20,46892,436
+Australia,Victoria,21/3/20,20500,229
+Australia,Western Australia,21/3/20,9220,90
+Australia,South Australia,21/3/20,13000,67
+Australia,Tasmania,21/3/20,807,16
