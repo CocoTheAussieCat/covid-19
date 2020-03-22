@@ -1,6 +1,17 @@
+library(tidyverse)
+library(lubridate)
+library(here)
+library(scales)
+library(RColorBrewer)
+library(glue)
+library(wesanderson)
+library(shiny)
+library(shinydashboard)
+library(plotly)
+library(patchwork)
+
 ### PREPARTION CODE -----------------------------------------------------------
 # Imports data, cleans and manipulates, creates plots
-source("00_packages.R")
 source("01_who_data_import.R")
 source("02_growth_rate.R")
 source("03_aus_testing.R")

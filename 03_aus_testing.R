@@ -99,7 +99,7 @@ total_cases_plot <- aus_test_current %>%
        x = "",
        y = "") +
   coord_flip() +
-  scale_y_continuous(limits = c(0, 600), breaks = c(0, 100, 200, 300, 400, 500)) +
+  scale_y_continuous(limits = c(0, 600), breaks = c(0, 100, 200, 300, 400, 500, 600)) +
   aus_plot_theme +
   scale_color_brewer(palette = "Dark2")
 
@@ -134,7 +134,7 @@ pos_test_plot <- aus_test_current %>%
        y = "") +
   coord_flip() +
   aus_plot_theme +
-  scale_y_continuous(labels = percent_format(0.1), limits = c(0, 0.02)) +
+  scale_y_continuous(labels = percent_format(0.1), limits = c(0, 0.025)) +
   scale_color_brewer(palette = "Dark2")
 
 # Combine plots using {patchwork} to form 2x2
