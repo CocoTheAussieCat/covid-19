@@ -49,7 +49,10 @@ aus_test <- who_aus %>%
 # Filter for more recent day's stats 
 aus_test_current <- aus_test %>%
   group_by(state) %>% 
-  filter(date == max(date), cases == max(cases))
+  filter(date == max(date) & cases == max(cases))
+
+aus_test_current %>% 
+  select(province_state, pos_test_ratio)
 
 ### PLOT PREP -----------------------------------------------------------------
 aus_plot_theme <- theme_minimal() +
@@ -71,46 +74,45 @@ aus_plot_title <- glue("Australian COVID-19 testing to ", aus_date)
 # Create colour palette
 aus_pal <- brewer.pal(n = 8, name = "Dark2")
 
-# 1. Plot of total tests
-total_tests_plot <- aus_test_current %>% 
-  ggplot(aes(x = reorder(state, tests), y = tests/10^3)) +
-  geom_point(aes(colour = reorder(state, tests))) +
-  geom_segment(aes(yend = 0, xend = state, colour = reorder(state, tests))) +
-  geom_text(aes(y = tests/10^3 + 1, label = scales::comma(round(tests/10^3, digits = 1), suffix = "k"), 
-                colour = reorder(state, tests)), hjust = "left", size = label_size) +
+# 1. Plot of total cases
+total_cases_plot <- aus_test_current %>% 
+  ggplot(aes(x = reorder(state, cases), y = cases)) +
+  geom_point(aes(colour = reorder(state, cases))) +
+  geom_segment(aes(yend = 0, xend = state, colour = reorder(state, cases))) +
+  geom_text(aes(y = cases + 20, label = cases, 
+                colour = reorder(state, cases)), hjust = "left", size = label_size) +
   labs(title = aus_plot_title,
-       subtitle = "Tests administered",
+    subtitle = "Confirmed cases",
        x = "",
        y = "") +
   coord_flip() +
-  scale_y_continuous(limits = c(0, 60), breaks = c(0, 10, 20, 30, 40, 50, 60), 
+  scale_y_continuous(limits = c(0, 1000), breaks = c(0, 200, 400, 600, 800, 1000)) +
+  aus_plot_theme +
+  scale_color_brewer(palette = "Dark2")
+
+# 2. Plot of total tests
+total_tests_plot <- aus_test_current %>% 
+  ggplot(aes(x = reorder(state, cases), y = tests/10^3)) +
+  geom_point(aes(colour = reorder(state, cases))) +
+  geom_segment(aes(yend = 0, xend = state, colour = reorder(state, cases))) +
+  geom_text(aes(y = tests/10^3 + 1, label = scales::comma(round(tests/10^3, digits = 1), suffix = "k"), 
+                colour = reorder(state, cases)), hjust = "left", size = label_size) +
+  labs(subtitle = "Tests administered",
+       x = "",
+       y = "") +
+  coord_flip() +
+  scale_y_continuous(limits = c(0, 70), breaks = c(0, 10, 20, 30, 40, 50, 60, 70), 
                      labels = scales::comma_format(suffix = "k")) +
   aus_plot_theme +
   scale_color_brewer(palette = "Dark2")
 
-# 2. Plot of total cases
-total_cases_plot <- aus_test_current %>% 
-  ggplot(aes(x = reorder(state, tests), y = cases)) +
-  geom_point(aes(colour = reorder(state, cases))) +
-  geom_segment(aes(yend = 0, xend = state, colour = reorder(state, cases))) +
-  geom_text(aes(y = cases + 10, label = cases, 
-                colour = reorder(state, tests)), hjust = "left", size = label_size) +
-  labs(subtitle = "Confirmed cases",
-       x = "",
-       y = "") +
-  coord_flip() +
-  scale_y_continuous(limits = c(0, 600), breaks = c(0, 100, 200, 300, 400, 500, 600)) +
-  aus_plot_theme +
-  scale_color_brewer(palette = "Dark2")
-
-
 # 3. Plot of tests per million people
 test_per_cap_plot <- aus_test_current %>% 
-  ggplot(aes(x = reorder(state, tests), y = test_per_cap/10^3)) +
-  geom_point(aes(colour = reorder(state, tests))) +
-  geom_segment(aes(yend = 0, xend = state, colour = reorder(state, tests))) +
+  ggplot(aes(x = reorder(state, cases), y = test_per_cap/10^3)) +
+  geom_point(aes(colour = reorder(state, cases))) +
+  geom_segment(aes(yend = 0, xend = state, colour = reorder(state, cases))) +
   geom_text(aes(y = test_per_cap/10^3 + 0.2, label = round(test_per_cap/10^3, digits = 1), 
-                colour = reorder(state, tests)), 
+                colour = reorder(state, cases)), 
             hjust = "left", size = label_size) +
   labs(subtitle = "Tests per thousand people",
        x = "",
@@ -123,22 +125,22 @@ test_per_cap_plot <- aus_test_current %>%
 
 # 4. Plot of positive case ratio
 pos_test_plot <- aus_test_current %>% 
-  ggplot(aes(x = reorder(state, tests), y = pos_test_ratio)) +
-  geom_point(aes(colour = reorder(state, tests))) +
-  geom_segment(aes(yend = 0, xend = state, colour = reorder(state, tests))) +
+  ggplot(aes(x = reorder(state, cases), y = pos_test_ratio)) +
+  geom_point(aes(colour = reorder(state, cases))) +
+  geom_segment(aes(yend = 0, xend = state, colour = reorder(state, cases))) +
   geom_text(aes(y = pos_test_ratio + 0.0005, 
-                label = percent(pos_test_ratio, accuracy = 0.1), colour = reorder(state, tests)), 
+                label = percent(pos_test_ratio, accuracy = 0.1), colour = reorder(state, cases)), 
             hjust = "left", size = label_size) +
   labs(subtitle = "% Tests positive",
        x = "",
        y = "") +
   coord_flip() +
   aus_plot_theme +
-  scale_y_continuous(labels = percent_format(0.1), limits = c(0, 0.025)) +
+  scale_y_continuous(labels = percent_format(0.1), limits = c(0, 0.03)) +
   scale_color_brewer(palette = "Dark2")
 
 # Combine plots using {patchwork} to form 2x2
-patch_1 <- total_tests_plot + total_cases_plot
+patch_1 <- total_cases_plot + total_tests_plot
 patch_2 <- test_per_cap_plot + pos_test_plot
 patch <- patch_1 / patch_2   # sent to Shiny App
 
