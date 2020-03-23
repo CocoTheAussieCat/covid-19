@@ -14,13 +14,13 @@ aus_pop <- tribble(~"province_state", ~"state", ~"population",
 aus_total_pop = sum(aus_pop$population) # Australia population
 
 # Testing stats manually inputted from state health press releases each day
-test_org <- read_csv("tests.csv")
+test_org <- read_csv("https://raw.githubusercontent.com/CocoTheAussieCat/covid-19/master/tests.csv")
 
 test <- test_org %>% 
   mutate(date = dmy(date))
 
 # Change names to match who_clean
-names(test) <- c("country_region", "province_state", "date", "tests", "positive")
+names(test) <- c("country_region", "province_state", "date", "tests", "positive", "updated")
 
 # Joined test to who_clean and aus_pop
 who_test <- test %>% 

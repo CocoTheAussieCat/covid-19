@@ -1,6 +1,6 @@
 ### IMPORT DATA ---------------------------------------------------------------
 # Import country population rds file
-population <- read_rds("population.rds")
+population <- read_csv("https://raw.githubusercontent.com/CocoTheAussieCat/covid-19/master/population.csv")
 
 # Import covid-19 data from Johns Hopkins
 who_html <- "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv"
