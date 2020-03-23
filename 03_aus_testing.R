@@ -27,7 +27,7 @@ who_test <- test %>%
   left_join(who_clean, by = c("country_region", "province_state", "date")) %>% 
   select(-population) %>% 
   left_join(aus_pop, by = "province_state") %>% 
-  select(country_region, province_state, date, tests, cases, state, population, positive)
+  select(country_region, province_state, date, tests, cases, state, population, positive, lat, long)
 
 # Filter for just Aus countries, use "cases" if "positive" is NA, rerun previous, new case maths
 who_aus <- who_test %>% 
@@ -49,7 +49,7 @@ aus_test <- who_aus %>%
 # Filter for more recent day's stats 
 aus_test_current <- aus_test %>%
   group_by(state) %>% 
-  filter(date == max(date))
+  filter(date == max(date), cases == max(cases))
 
 ### PLOT PREP -----------------------------------------------------------------
 aus_plot_theme <- theme_minimal() +
@@ -141,3 +141,4 @@ pos_test_plot <- aus_test_current %>%
 patch_1 <- total_tests_plot + total_cases_plot
 patch_2 <- test_per_cap_plot + pos_test_plot
 patch <- patch_1 / patch_2   # sent to Shiny App
+
