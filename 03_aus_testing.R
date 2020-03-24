@@ -1,6 +1,59 @@
 ### IMPORT DATA ---------------------------------------------------------------
+# From Guardian Australia JSON feed
+# Guardian Australia https://www.theguardian.com/au
+aus_guardian_html <- "https://interactive.guim.co.uk/docsdata/1q5gdePANXci8enuiS4oHUJxcxC13d6bjMRSicakychE.json"
+aus_org <- fromJSON(aus_guardian_html, flatten = T)
+aus_df <- aus_org$sheets$updates
+names(aus_df)
 
-# Australian state populations (data taken from ABS Sep 2019)
+# Replace blanks with NA, remove commas in numbers
+aus_df_clean <- aus_df %>%
+  mutate_all(~na_if(., "")) %>% 
+  mutate_all(~(gsub(",", "", .))) %>% 
+  glimpse()
+
+
+### CLEAN DATA ----------------------------------------------------------------
+# Convert data type, create date_time variable, rename
+aus_clean <- suppressWarnings(aus_df_clean %>% 
+                                mutate(State = fct_explicit_na(State, na_level = "Missing")) %>% 
+                                mutate(Date = dmy(Date)) %>% 
+                                mutate(Time = ifelse(!is.na(Time), paste0(Time, ":00"), "00:00:00")) %>% 
+                                mutate(date_time = as.POSIXct(Date + lubridate:: hms(Time))) %>% 
+                                select(-`Update Source`,-`Notes` ) %>% 
+                                mutate_if(is_character, as.numeric) %>% 
+                                select(state = State, 
+                                       date = Date, 
+                                       date_time = date_time,
+                                       cases = `Cumulative case count`, 
+                                       deaths = `Cumulative deaths`,
+                                       tests =`Tests conducted (total)`,
+                                       neg = `Tests conducted (negative)`, 
+                                       icu = `Intensive care (count)`,
+                                       hospital = `Hospitalisations (count)`, 
+                                       recovered = `Recovered (cumulative)`) %>% 
+                                glimpse()
+)
+
+
+# Create dense dataframe
+# For each day, select maximum value for all numeric variables
+# If neg and cases exists but tests doesn't, tests = neg+cases
+# Fill NA with previous value
+aus_dense <- aus_clean %>% 
+  group_by(state, date) %>%
+  arrange(date) %>% 
+  summarise_if(is.numeric, max) %>% 
+  mutate(tests = if_else(is.na(tests), 
+                         if_else(!is.na(neg), neg + cases, tests),
+                         tests)) %>% 
+  fill(cases, deaths, tests, icu, hospital, recovered) %>% 
+  fill(cases, deaths, tests, icu, hospital, recovered, .direction = "up") %>% 
+  select(-neg) %>% 
+  ungroup() %>%
+  glimpse()
+
+# Add population stats
 aus_pop <- tribble(~"province_state", ~"state", ~"population",
                    "New South Wales", "NSW", 8118000,
                    "Victoria", "VIC", 6229900,
@@ -9,50 +62,32 @@ aus_pop <- tribble(~"province_state", ~"state", ~"population",
                    "South Australia", "SA", 1756500,
                    "Tasmania", "TAS", 535500,
                    "Australian Capital Territory", "ACT", 428100,
-                   "Northern Territory", "NT", 245600)
+                   "Northern Territory", "NT", 245600) %>% 
+  mutate(state = as.factor(state)) %>% 
+  glimpse()
 
-aus_total_pop = sum(aus_pop$population) # Australia population
+aus_with_pop <- aus_dense %>% 
+  left_join(aus_pop, by = "state") %>% 
+  glimpse()
 
-# Testing stats manually inputted from state health press releases each day
-test_org <- read_csv("https://raw.githubusercontent.com/CocoTheAussieCat/covid-19/master/tests.csv")
-
-test <- test_org %>% 
-  mutate(date = dmy(date))
-
-# Change names to match who_clean
-names(test) <- c("country_region", "province_state", "date", "tests", "positive", "updated")
-
-# Joined test to who_clean and aus_pop
-who_test <- test %>% 
-  left_join(who_clean, by = c("country_region", "province_state", "date")) %>% 
-  select(-population) %>% 
-  left_join(aus_pop, by = "province_state") %>% 
-  select(country_region, province_state, date, tests, cases, state, population, positive, lat, long)
-
-# Filter for just Aus countries, use "cases" if "positive" is NA, rerun previous, new case maths
-who_aus <- who_test %>% 
-  filter(country_region == "Australia") %>% 
-  mutate(cases = if_else(!is.na(positive), positive, cases)) %>% 
-  select(-positive)
-
-# Add previous day's cases and new case column, calculate per capita numbers
-aus_test <- who_aus %>% 
-  group_by(province_state) %>% 
+# Add new cases and per capita variables
+aus_test <- aus_with_pop %>% 
+  group_by(state) %>% 
   mutate(prev_cases = lag(cases, 1),
          new_cases = cases - prev_cases,
          cases_per_cap = cases/population*10^6,
          new_cases_per_cap =  new_cases/population*10^6)%>% 
   ungroup() %>% 
   mutate(pos_test_ratio = cases/tests,
-         test_per_cap = tests/population * 10^6)
+         test_per_cap = tests/population * 10^6) %>% 
+  glimpse()
 
-# Filter for more recent day's stats 
+# Filter for more recent day's stats for plotting
 aus_test_current <- aus_test %>%
   group_by(state) %>% 
-  filter(date == max(date) & cases == max(cases))
+  filter(date == max(date)) %>%
+  glimpse()
 
-aus_test_current %>% 
-  select(province_state, pos_test_ratio)
 
 ### PLOT PREP -----------------------------------------------------------------
 aus_plot_theme <- theme_minimal() +
@@ -136,7 +171,7 @@ pos_test_plot <- aus_test_current %>%
        y = "") +
   coord_flip() +
   aus_plot_theme +
-  scale_y_continuous(labels = percent_format(0.1), limits = c(0, 0.03)) +
+  scale_y_continuous(labels = percent_format(0.1), limits = c(0, 0.05)) +
   scale_color_brewer(palette = "Dark2")
 
 # Combine plots using {patchwork} to form 2x2
