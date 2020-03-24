@@ -9,6 +9,7 @@ library(shiny)
 library(shinydashboard)
 library(plotly)
 library(patchwork)
+library(jsonlite)
 
 ### PREPARTION CODE -----------------------------------------------------------
 # Imports data, cleans and manipulates, creates plots
@@ -168,7 +169,10 @@ ui <- dashboardPage(skin = "yellow",
                         # tab 5 new cases total -------------------------------
                         tabItem(tabName = "aus_tab",
                                 fluidRow(
-                                  box(width = 12, plotOutput("aus_plot")
+                                  box(width = 12, plotOutput("aus_plot"), 
+                                      br(),
+                                      "Data from ",
+                                      tags$a(href = "https://www.theguardian.com/au", "Guardian Australia")
                                   ) # closes box
                                 ) # closes fluidRow
                         ) # closes tabItem 5 ----------------------------------
