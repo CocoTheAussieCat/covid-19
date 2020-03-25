@@ -73,7 +73,8 @@ ui <- dashboardPage(skin = "yellow",
                                       br(),
                                       br(),
                                       selectInput("growth_select", "Select country to add to chart", 
-                                                  hundred_cases, selected = "United Kingdom"),
+                                                  hundred_cases, selected = "United Kingdom",
+                                                  multiple = T),
                                       br(),
                                       "Data from ",
                                       tags$a(href=who_link, "Johns Hopkins")
@@ -93,7 +94,7 @@ ui <- dashboardPage(skin = "yellow",
                                       br(),
                                       br(),
                                       selectInput("growth_cap_select", "Select country to add to chart", 
-                                                  hundred_cases, selected = "United Kingdom"),
+                                                  hundred_cases, selected = "United Kingdom", multiple = T),
                                       br(),
                                       "COVID-19 data from ",
                                       tags$a(href=who_link, "Johns Hopkins"),
@@ -188,12 +189,12 @@ server <- function(input, output) {
   
   # Get country filter for growth plot from user input
   growth_filter <- reactive({
-    growth_filter <- as.character(input$growth_select) 
+    growth_filter <- input$growth_select
   })
   
   # Get country filter for growth per capita plot from user input
   growth_cap_filter <- reactive({
-    growth_cap_filter <- as.character(input$growth_cap_select) 
+    growth_cap_filter <- input$growth_cap_select
   })
   
   # Get country filter for new daily growth per capita plot from user input

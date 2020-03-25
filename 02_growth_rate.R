@@ -33,12 +33,12 @@ critical_countries_expanded <- c(critical_countries, "Germany", "France", "Spain
 growthPlot <- function(.df, .country_filter) {
   # Line plot of cases, with day 0 as day after 100 cases reported
   # Args: .df = dataframe
-  #       .country_fiter = country name as string
+  #       .country_fiter = country names as string
   # Returns: plot
   
   # Locations for text labels
   suppressWarnings(label_location <- .df %>% 
-                     filter(country_region %in% critical_countries | country_region == .country_filter) %>% 
+                     filter(country_region %in% critical_countries | country_region %in% .country_filter) %>% 
                      filter(day_since_hdrd == max(day_since_hdrd)) %>% 
                      mutate(x_pos = day_since_hdrd, y_pos = cases, 
                             text_lab = glue(country_region, ": ", format(cases, big.mark = ","))))
@@ -48,7 +48,7 @@ growthPlot <- function(.df, .country_filter) {
   plot_date <- format(max(.df$date), "%d-%b-%Y")
   
   .df %>% 
-    filter(country_region %in% critical_countries | country_region == .country_filter) %>% 
+    filter(country_region %in% critical_countries | country_region %in% .country_filter) %>% 
     ggplot() +
     geom_line(aes(x = day_since_hdrd, y = cases, colour = country_region)) +
     geom_text(data = label_location, aes(x = x_pos, y = cases, 
@@ -74,7 +74,7 @@ growthPerCapitaPlot <- function(.df, .country_filter) {
   
   # Locations for text labels
   suppressWarnings(label_loc <- .df %>% 
-                     filter(country_region %in% critical_countries | country_region == .country_filter) %>% 
+                     filter(country_region %in% critical_countries | country_region %in% .country_filter) %>% 
                      filter(day_since_hdrd == max(day_since_hdrd)) %>% 
                      mutate(x_pos = day_since_hdrd, y_pos = cases_per_cap,
                             text_lab = glue(country_region, ": ", round(cases_per_cap, 0))))
@@ -84,7 +84,7 @@ growthPerCapitaPlot <- function(.df, .country_filter) {
   plot_date <- format(max(.df$date), "%d-%b-%Y")
   
   .df %>% 
-    filter(country_region %in% critical_countries | country_region == .country_filter) %>% 
+    filter(country_region %in% critical_countries | country_region %in% .country_filter) %>% 
     ggplot() +
     geom_line(aes(x = day_since_hdrd, y = cases_per_cap, colour = country_region)) +
     geom_text(data = label_loc, aes(x = x_pos, y = y_pos, 
