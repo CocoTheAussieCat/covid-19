@@ -4,13 +4,11 @@
 aus_guardian_html <- "https://interactive.guim.co.uk/docsdata/1q5gdePANXci8enuiS4oHUJxcxC13d6bjMRSicakychE.json"
 aus_org <- fromJSON(aus_guardian_html, flatten = T)
 aus_df <- aus_org$sheets$updates
-names(aus_df)
 
 # Replace blanks with NA, remove commas in numbers
 aus_df_clean <- aus_df %>%
   mutate_all(~na_if(., "")) %>% 
-  mutate_all(~(gsub(",", "", .))) %>% 
-  glimpse()
+  mutate_all(~(gsub(",", "", .)))
 
 
 ### CLEAN DATA ----------------------------------------------------------------
@@ -31,8 +29,7 @@ aus_clean <- suppressWarnings(aus_df_clean %>%
                                        neg = `Tests conducted (negative)`, 
                                        icu = `Intensive care (count)`,
                                        hospital = `Hospitalisations (count)`, 
-                                       recovered = `Recovered (cumulative)`) %>% 
-                                glimpse()
+                                       recovered = `Recovered (cumulative)`)
 )
 
 
@@ -50,8 +47,7 @@ aus_dense <- aus_clean %>%
   fill(cases, deaths, tests, icu, hospital, recovered) %>% 
   fill(cases, deaths, tests, icu, hospital, recovered, .direction = "up") %>% 
   select(-neg) %>% 
-  ungroup() %>%
-  glimpse()
+  ungroup()
 
 # Add population stats
 aus_pop <- tribble(~"province_state", ~"state", ~"population",
@@ -63,12 +59,10 @@ aus_pop <- tribble(~"province_state", ~"state", ~"population",
                    "Tasmania", "TAS", 535500,
                    "Australian Capital Territory", "ACT", 428100,
                    "Northern Territory", "NT", 245600) %>% 
-  mutate(state = as.factor(state)) %>% 
-  glimpse()
+  mutate(state = as.factor(state))
 
 aus_with_pop <- aus_dense %>% 
-  left_join(aus_pop, by = "state") %>% 
-  glimpse()
+  left_join(aus_pop, by = "state")
 
 # Add new cases and per capita variables
 aus_test <- aus_with_pop %>% 
@@ -79,14 +73,17 @@ aus_test <- aus_with_pop %>%
          new_cases_per_cap =  new_cases/population*10^6)%>% 
   ungroup() %>% 
   mutate(pos_test_ratio = cases/tests,
-         test_per_cap = tests/population * 10^6) %>% 
-  glimpse()
+         test_per_cap = tests/population * 10^6) 
+
+aus_test %>% filter(state == "TAS") %>% 
+  filter(tests == max(tests)) %>% 
+  arrange(date)
+
 
 # Filter for more recent day's stats for plotting
 aus_test_current <- aus_test %>%
   group_by(state) %>% 
-  filter(date == max(date)) %>%
-  glimpse()
+  filter(date == max(date))
 
 
 ### PLOT PREP -----------------------------------------------------------------
@@ -121,7 +118,7 @@ total_cases_plot <- aus_test_current %>%
        x = "",
        y = "") +
   coord_flip() +
-  scale_y_continuous(limits = c(0, 1000), breaks = c(0, 200, 400, 600, 800, 1000)) +
+  scale_y_continuous(limits = c(0, 1400), breaks = c(0, 200, 400, 600, 800, 1000, 1200, 1400)) +
   aus_plot_theme +
   scale_color_brewer(palette = "Dark2")
 
@@ -171,7 +168,7 @@ pos_test_plot <- aus_test_current %>%
        y = "") +
   coord_flip() +
   aus_plot_theme +
-  scale_y_continuous(labels = percent_format(0.1), limits = c(0, 0.05)) +
+  scale_y_continuous(labels = percent_format(0.1), limits = c(0, 0.1)) +
   scale_color_brewer(palette = "Dark2")
 
 # Combine plots using {patchwork} to form 2x2

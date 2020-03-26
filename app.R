@@ -53,7 +53,7 @@ ui <- dashboardPage(skin = "yellow",
                         br(),
                         " #flattenthecurve",
                         br(),
-                        ' #socialdistancing',
+                        ' #stayathome',
                         br(),
                         ' #bekind'
                       ) # closes sidebarMenu
@@ -77,7 +77,10 @@ ui <- dashboardPage(skin = "yellow",
                                                   multiple = T),
                                       br(),
                                       "Data from ",
-                                      tags$a(href=who_link, "Johns Hopkins")
+                                      tags$a(href=who_link, "Johns Hopkins"),
+                                      br(),
+                                      br(),
+                                      downloadButton("growth_download", "Download")
                                   ) # closes box
                                 ) # closes fluidRow
                         ), # closes tabItem 1 ---------------------------------
@@ -100,7 +103,10 @@ ui <- dashboardPage(skin = "yellow",
                                       tags$a(href=who_link, "Johns Hopkins"),
                                       br(),
                                       "Population data from ",
-                                      tags$a(href=gapminder_link, "Gapminder")
+                                      tags$a(href=gapminder_link, "Gapminder"),
+                                      br(),
+                                      br(),
+                                      downloadButton("per_cap_download", "Download")
                                   ) # closes box
                                 ) # closes fluidRow
                         ), # closes tabItem 2 ---------------------------------
@@ -123,7 +129,10 @@ ui <- dashboardPage(skin = "yellow",
                                       tags$a(href=who_link, "Johns Hopkins"),
                                       br(),
                                       "Population data from ",
-                                      tags$a(href=gapminder_link, "Gapminder")
+                                      tags$a(href=gapminder_link, "Gapminder"),
+                                      br(),
+                                      br(),
+                                      downloadButton("daily_cap_download", "Download")
                                   ) # closes box
                                 ) # closes fluidRow
                         ), # closes tabItem 3 ---------------------------------
@@ -142,7 +151,10 @@ ui <- dashboardPage(skin = "yellow",
                                                   plot_type, selected = plot_type[1]),
                                       br(),
                                       "Data from ",
-                                      tags$a(href=who_link, "Johns Hopkins")
+                                      tags$a(href=who_link, "Johns Hopkins"),
+                                      br(),
+                                      br(),
+                                      downloadButton("country_download", "Download")
                                   
                                   ) # closes box
                                 ) # closes fluidRow
@@ -162,7 +174,11 @@ ui <- dashboardPage(skin = "yellow",
                                                   plot_type, selected = plot_type[1]),
                                       br(),
                                       "Data from ",
-                                      tags$a(href=who_link, "Johns Hopkins")
+                                      tags$a(href=who_link, "Johns Hopkins"),
+                                      br(),
+                                      br(),
+                                      downloadButton("region_download", "Download")
+                                      
                                   ) # closes box
                                 ) # closes fluidRow
                         ), # closes tabItem 5 ----------------------------------
@@ -226,10 +242,20 @@ server <- function(input, output) {
 
   # Create growth rate plot
   output$growth_plot <- renderPlot({
-    
     growth_filter <- growth_filter()
     growthPlot(who_day_zero, growth_filter)
   })
+  
+  output$growth_download <- downloadHandler(
+    filename = function() {
+      paste("case_growth_data", ".csv", sep = "")
+    },
+    content = function(file) {
+      growth_filter <- growth_filter()
+      growth_table <- growthData(who_day_zero, growth_filter)
+      write.csv(growth_table, file, row.names = TRUE)
+    }
+  )
   
   # Create growth rate per capita plot
   output$growth_cap_plot <- renderPlot({
@@ -238,6 +264,17 @@ server <- function(input, output) {
     growthPerCapitaPlot(who_day_zero, growth_cap_filter)
   })
   
+  output$per_cap_download <- downloadHandler(
+    filename = function() {
+      paste("case_per_cap_data", ".csv", sep = "")
+    },
+    content = function(file) {
+      growth_cap_filter <- growth_cap_filter()
+      per_cap_table <- growthData(who_day_zero, growth_cap_filter)
+      write.csv(per_cap_table, file, row.names = TRUE)
+    }
+  )
+  
   # Create new daily growth rate per capita plot
   output$new_daily_cap_plot <- renderPlot({
     
@@ -245,9 +282,19 @@ server <- function(input, output) {
     dailyCasesPerCapitaPlot(who_day_zero, new_daily_cap_filter)
   })
   
+  output$daily_cap_download <- downloadHandler(
+    filename = function() {
+      paste("daily_cases_per_cap_data", ".csv", sep = "")
+    },
+    content = function(file) {
+      new_daily_cap_filter <- new_daily_cap_filter()
+      daily_cap_table <- dailyCasesPerCapitaData(who_day_zero, new_daily_cap_filter)
+      write.csv(daily_cap_table, file, row.names = TRUE)
+    }
+  )
+  
   # Create country plot
   output$country_plot <- renderPlotly({
-    
     country_filter <- country_filter()
     country_plot_type <- country_plot_type()
     parsed_country_plot <- case_when(country_plot_type == "New cases each day" ~"new_cases",
@@ -256,9 +303,20 @@ server <- function(input, output) {
     countryPlot(who_clean, country_filter, parsed_country_plot)
   })
   
+  output$country_download <- downloadHandler(
+    filename = function() {
+      country_filter <- country_filter()
+      paste(as.character(country_filter), "_data.csv", sep = "")
+    },
+    content = function(file) {
+      country_filter <- country_filter()
+      country_table <- countryData(who_clean, country_filter)
+      write.csv(country_table, file, row.names = TRUE)
+    }
+  )
+  
   # Create region plot
   output$region_plot <- renderPlotly({
-    
     region_filter <- region_filter()
     region_plot_type <- region_plot_type()
     parsed_region_plot <- case_when(region_plot_type == "New cases each day" ~"new_cases",
@@ -266,6 +324,19 @@ server <- function(input, output) {
     
     regionPlot(who_clean, region_filter, parsed_region_plot)
   })
+    
+    output$region_download <- downloadHandler(
+      filename = function() {
+        region_filter <- region_filter()
+        paste(as.character(region_filter), "_data.csv", sep = "")
+      },
+      content = function(file) {
+        region_filter <- region_filter()
+        region_table <- regionData(who_clean, region_filter)
+        write.csv(region_table, file, row.names = TRUE)
+      }
+    )
+
   
   # Create aus testing plot
   output$aus_plot <- renderPlot({
