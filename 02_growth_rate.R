@@ -137,25 +137,25 @@ dailyCasesPerCapitaPlot <- function(.df, .country_filter) {
   
   label_loc_ncpc <- daily_cases_df %>% 
     filter(date == max(date)) %>% 
-    mutate(x_pos = day_since_hdrd, y_pos = new_cases_per_cap)
+    mutate(x_pos = day_since_hdrd/7, y_pos = new_cases_per_cap)
   
   plot_date <- format(max(daily_cases_df$date), "%d-%b-%Y")
   plot_title <- glue("Confirmed COVID-19 cases per million: Data to ", plot_date)
   
   daily_cases_df %>% 
     ggplot() +
-    geom_line(aes(x = day_since_hdrd, y = new_cases_per_cap, colour = country_region)) +
+    geom_line(aes(x = day_since_hdrd/7, y = new_cases_per_cap, colour = country_region)) +
     geom_text(data = label_loc_ncpc, aes(x = x_pos, y = y_pos, 
                                          label = country_region, colour = country_region), 
-              nudge_x = 1, hjust = 0) +
+              nudge_x = 0.5, hjust = 0) +
     facet_wrap(~country_region, nrow = 3, ncol = 3) +
     scale_y_log10(breaks=c(0.01, 0.1, 1, 10, 100, 1000),
                   labels=c("0.01", "0.1", "1", "10", "100", "1,000")) +
-    scale_x_continuous(breaks = c(0, 7, 14, 21, 28, 35, 42, 49, 56, 63, 70), limits = c(0, 70)) +
+    scale_x_continuous(breaks = c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12), limits = c(0, 12)) +
     labs(title = plot_title,
          subtitle = "Since day after 100 cases reported, log scale",
          y = "Daily cases per million, log scale",
-         x= "Days since 100 cases reported") +
+         x= "Weeks since 100 cases reported") +
     who_plot_theme +
     theme(legend.position = "None",
           panel.grid.minor = element_blank())

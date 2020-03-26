@@ -118,7 +118,7 @@ total_cases_plot <- aus_test_current %>%
        x = "",
        y = "") +
   coord_flip() +
-  scale_y_continuous(limits = c(0, 1400), breaks = c(0, 200, 400, 600, 800, 1000, 1200, 1400)) +
+  scale_y_continuous(limits = c(0, 2000), breaks = c(0, 500, 1000, 1500, 2000)) +
   aus_plot_theme +
   scale_color_brewer(palette = "Dark2")
 
