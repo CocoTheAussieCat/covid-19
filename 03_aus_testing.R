@@ -32,15 +32,23 @@ aus_clean <- suppressWarnings(aus_df_clean %>%
                                        recovered = `Recovered (cumulative)`)
 )
 
+aus_clean %>% 
+  filter(state == "NSW") %>% 
+  arrange(desc(date)) %>% 
+  glimpse()
+  
 
 # Create dense dataframe
 # For each day, select maximum value for all numeric variables
 # If neg and cases exists but tests doesn't, tests = neg+cases
 # Fill NA with previous value
+
 aus_dense <- aus_clean %>% 
+  mutate_if(is.numeric, ~(if_else(is.na(.), 0, .))) %>% 
   group_by(state, date) %>%
   arrange(date) %>% 
-  summarise_if(is.numeric, max) %>% 
+  summarise_if(is.numeric, max) %>%
+  mutate_all(~na_if(., 0)) %>% 
   mutate(tests = if_else(is.na(tests), 
                          if_else(!is.na(neg), neg + cases, tests),
                          tests)) %>% 
@@ -48,6 +56,7 @@ aus_dense <- aus_clean %>%
   fill(cases, deaths, tests, icu, hospital, recovered, .direction = "up") %>% 
   select(-neg) %>% 
   ungroup()
+  
 
 # Add population stats
 aus_pop <- tribble(~"province_state", ~"state", ~"population",
@@ -75,15 +84,13 @@ aus_test <- aus_with_pop %>%
   mutate(pos_test_ratio = cases/tests,
          test_per_cap = tests/population * 10^6) 
 
-aus_test %>% filter(state == "TAS") %>% 
-  filter(tests == max(tests)) %>% 
-  arrange(date)
-
 
 # Filter for more recent day's stats for plotting
 aus_test_current <- aus_test %>%
   group_by(state) %>% 
-  filter(date == max(date))
+  filter(date == max(date)) %>% 
+  select(state, date, cases, tests, cases_per_cap, pos_test_ratio, test_per_cap) %>% 
+  glimpse()
 
 
 ### PLOT PREP -----------------------------------------------------------------
@@ -133,7 +140,7 @@ total_tests_plot <- aus_test_current %>%
        x = "",
        y = "") +
   coord_flip() +
-  scale_y_continuous(limits = c(0, 70), breaks = c(0, 10, 20, 30, 40, 50, 60, 70), 
+  scale_y_continuous(limits = c(0, 100), breaks = c(0, 25, 50, 75, 100), 
                      labels = scales::comma_format(suffix = "k")) +
   aus_plot_theme +
   scale_color_brewer(palette = "Dark2")
@@ -160,7 +167,7 @@ pos_test_plot <- aus_test_current %>%
   ggplot(aes(x = reorder(state, cases), y = pos_test_ratio)) +
   geom_point(aes(colour = reorder(state, cases))) +
   geom_segment(aes(yend = 0, xend = state, colour = reorder(state, cases))) +
-  geom_text(aes(y = pos_test_ratio + 0.005, 
+  geom_text(aes(y = pos_test_ratio + 0.0025, 
                 label = percent(pos_test_ratio, accuracy = 0.1), colour = reorder(state, cases)), 
             hjust = "left", size = label_size) +
   labs(subtitle = "% Tests positive",
@@ -168,7 +175,7 @@ pos_test_plot <- aus_test_current %>%
        y = "") +
   coord_flip() +
   aus_plot_theme +
-  scale_y_continuous(labels = percent_format(0.1), limits = c(0, 0.1)) +
+  scale_y_continuous(labels = percent_format(0.1), limits = c(0, 0.05)) +
   scale_color_brewer(palette = "Dark2")
 
 # Combine plots using {patchwork} to form 2x2
