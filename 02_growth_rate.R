@@ -67,7 +67,7 @@ growthPlot <- function(.df, .country_filter) {
               nudge_x = 1, hjust = 0) +
     scale_y_log10(breaks=c(100, 1000, 10000, 100000, 1000000),
                   labels=c("100", "1,000", "10,000", "100,000", "1,000,000")) +
-    scale_x_continuous(breaks = c(0, 7, 14, 21, 28, 35, 42, 49, 56, 63, 70), limits = c(0, 70)) +
+    scale_x_continuous(breaks = c(0, 7, 14, 21, 28, 35, 42, 49, 56, 63, 70, 77), limits = c(0, 77)) +
     labs(title = glue("Confirmed COVID-19 cases: Data to ", plot_date),
          subtitle = "Growth since day after 100 cases reported, log scale",
          y = "Cases, log scale",
@@ -103,7 +103,7 @@ growthPerCapitaPlot <- function(.df, .country_filter) {
               nudge_x = 1, hjust = 0) +
     scale_y_log10(breaks=c(0.1, 1, 10, 100, 1000),
                   labels=c("0.1", "1", "10", "100", "1,000")) +
-    scale_x_continuous(breaks = c(0, 7, 14, 21, 28, 35, 42, 49, 56, 63, 70), limits = c(0, 70)) +
+    scale_x_continuous(breaks = c(0, 7, 14, 21, 28, 35, 42, 49, 56, 63, 70, 77), limits = c(0, 77)) +
     labs(title = glue("Confirmed COVID-19 cases per million: Data to ", plot_date),
          subtitle = "Growth since day after 100 cases reported, log scale",
          y = "Cases per million, log scale",

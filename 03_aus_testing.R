@@ -151,7 +151,7 @@ test_per_cap_plot <- aus_test_current %>%
        y = "") +
   coord_flip() +
   aus_plot_theme +
-  scale_y_continuous(limits = c(0, 10), breaks = c(0, 2, 4, 6, 8, 10)) +
+  scale_y_continuous(limits = c(0, 20), breaks = c(0, 5, 10, 15, 20)) +
   scale_color_brewer(palette = "Dark2")
 
 
@@ -160,7 +160,7 @@ pos_test_plot <- aus_test_current %>%
   ggplot(aes(x = reorder(state, cases), y = pos_test_ratio)) +
   geom_point(aes(colour = reorder(state, cases))) +
   geom_segment(aes(yend = 0, xend = state, colour = reorder(state, cases))) +
-  geom_text(aes(y = pos_test_ratio + 0.0005, 
+  geom_text(aes(y = pos_test_ratio + 0.005, 
                 label = percent(pos_test_ratio, accuracy = 0.1), colour = reorder(state, cases)), 
             hjust = "left", size = label_size) +
   labs(subtitle = "% Tests positive",
