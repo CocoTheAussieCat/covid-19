@@ -140,7 +140,7 @@ dailyCasesPerCapitaPlot <- function(.df, .country_filter) {
     mutate(x_pos = day_since_hdrd/7, y_pos = new_cases_per_cap)
   
   plot_date <- format(max(daily_cases_df$date), "%d-%b-%Y")
-  plot_title <- glue("Confirmed COVID-19 cases per million: Data to ", plot_date)
+  plot_title <- glue("Daily confirmed COVID-19 cases per million: Data to ", plot_date)
   
   daily_cases_df %>% 
     ggplot() +
