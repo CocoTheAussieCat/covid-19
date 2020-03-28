@@ -7,6 +7,6 @@ Dependencies:
 
 03_aus_testing = imports data on Australian COVID-19 testing rates, creates plots used in app.R
 
-tests.csv = Australian COVID-19 daily testing and case statistics. Updated manually by repo owner with data sourced from Australian state government health websites
+tests.csv = DEPRECATED. Replaced by JSON data feed from Guardian Australia. 
 
 population.csv = World population data from gapminder
