@@ -80,6 +80,8 @@ aus_test <- aus_with_pop %>%
          new_cases = cases - prev_cases,
          cases_per_cap = cases/population*10^6,
          new_cases_per_cap =  new_cases/population*10^6)%>% 
+  mutate(prev_tests= lag(tests, 1),
+         new_tests = tests - prev_tests)%>%
   ungroup() %>% 
   mutate(pos_test_ratio = cases/tests,
          test_per_cap = tests/population * 10^6) 
@@ -125,7 +127,7 @@ total_cases_plot <- aus_test_current %>%
        x = "",
        y = "") +
   coord_flip() +
-  scale_y_continuous(limits = c(0, 2000), breaks = c(0, 500, 1000, 1500, 2000)) +
+  scale_y_continuous(limits = c(0, 3000), breaks = c(0, 500, 1000, 1500, 2000, 2500, 3000)) +
   aus_plot_theme +
   scale_color_brewer(palette = "Dark2")
 
@@ -140,7 +142,7 @@ total_tests_plot <- aus_test_current %>%
        x = "",
        y = "") +
   coord_flip() +
-  scale_y_continuous(limits = c(0, 100), breaks = c(0, 25, 50, 75, 100), 
+  scale_y_continuous(limits = c(0, 200), breaks = c(0, 50, 100, 150, 200), 
                      labels = scales::comma_format(suffix = "k")) +
   aus_plot_theme +
   scale_color_brewer(palette = "Dark2")
@@ -182,4 +184,6 @@ pos_test_plot <- aus_test_current %>%
 patch_1 <- total_cases_plot + total_tests_plot
 patch_2 <- test_per_cap_plot + pos_test_plot
 patch <- patch_1 / patch_2   # sent to Shiny App
+
+
 
